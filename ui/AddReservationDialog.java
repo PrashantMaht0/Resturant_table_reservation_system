@@ -11,22 +11,16 @@ import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Dialog window for adding a new table reservation, capturing specific date and time.
- */
 public class AddReservationDialog extends JDialog {
     
     private final ReservationManager manager;
     private final MainScreenGUI parentGUI;
 
-    // UI Components
     private JTextField tableNoField, nameField, phoneField;
-    // Fields for specific Date and Time input
     private JTextField dateField, timeField; 
     
     private JButton addButton;
     
-    // Define a standard format for parsing user input
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -42,7 +36,6 @@ public class AddReservationDialog extends JDialog {
     }
 
     private void setupUI() {
-        // 6 rows for inputs + labels
         JPanel mainPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         
@@ -50,9 +43,8 @@ public class AddReservationDialog extends JDialog {
         nameField = new JTextField(15);
         phoneField = new JTextField(15);
         
-        // Default to today's date and a common reservation time
         dateField = new JTextField(LocalDate.now().format(DATE_FORMATTER), 10); 
-        timeField = new JTextField("19:00", 5); // Example: 7:00 PM
+        timeField = new JTextField("19:00", 5); 
 
         mainPanel.add(new JLabel("Table No:"));
         mainPanel.add(tableNoField);
@@ -61,7 +53,6 @@ public class AddReservationDialog extends JDialog {
         mainPanel.add(new JLabel("Phone:"));
         mainPanel.add(phoneField);
         
-        // New Date and Time fields
         mainPanel.add(new JLabel("Date (YYYY-MM-DD):"));
         mainPanel.add(dateField);
         mainPanel.add(new JLabel("Time (HH:MM 24h):"));
@@ -82,12 +73,10 @@ public class AddReservationDialog extends JDialog {
             String name = nameField.getText().trim();
             String phone = phoneField.getText().trim();
             
-            // --- New Logic: Parse Date and Time to create LocalDateTime ---
             LocalDate date = LocalDate.parse(dateField.getText().trim(), DATE_FORMATTER);
             LocalTime time = LocalTime.parse(timeField.getText().trim(), TIME_FORMATTER);
             LocalDateTime dateTime = LocalDateTime.of(date, time);
 
-            // Call the updated manager method
             manager.addReservation(tableNo, name, phone, dateTime);
 
             JOptionPane.showMessageDialog(this, 
@@ -106,7 +95,7 @@ public class AddReservationDialog extends JDialog {
             JOptionPane.showMessageDialog(this, ex.getMessage(), 
                 "Booking Failed", JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException ex) {
-            // Handles cases like invalid table number or time in the past
+            
             JOptionPane.showMessageDialog(this, ex.getMessage(), 
                 "Validation Error", JOptionPane.ERROR_MESSAGE);
         }
