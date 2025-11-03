@@ -4,18 +4,10 @@ import model.AbstractTable;
 import model.Reservation;
 import exception.TableNotAvailableExeception;
 import java.time.LocalDateTime;
-import java.util.List;
 import model.FourSeaterTable;
 import model.TwoSeaterTable;
 import model.TableType;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Manages the restaurant tables and reservations.
@@ -24,147 +16,205 @@ import java.util.stream.Collectors;
  */
 public class ReservationManager implements ReservationService {
 
-    // --- Encapsulation ---
-    // All core data is private and final.
-    private final Map<Integer, AbstractTable> tables;
-    private final List<Reservation> reservations;
-    private final String SYSTEM_VERSION = "v1.0.0"; // Final constant for demonstration
+    // --- Array Storage ---
+    // Using simple arrays to store objects. We'll use a fixed size for simplicity.
+    private static final int MAX_TABLES = 30;
+    private static final int MAX_RESERVATIONS = 50;
+    
+    // Fulfills the 'arrays' requirement
+    private final AbstractTable[] tables; 
+    private Reservation[] reservations;
+    
+    // Track current counts
+    private int tableCount;
+    private int reservationCount;
 
-    // --- Constructors: this() vs this. ---
+    // --- Constructors ---
     
-    /**
-     * Default constructor: initializes tables and reservations.
-     */
     public ReservationManager() {
-        // Calls the primary constructor (demonstrates this())
-        this(new HashMap<>());
-        // Initialize default tables after calling the primary constructor
+        this.tables = new AbstractTable[MAX_TABLES];
+        this.reservations = new Reservation[MAX_RESERVATIONS];
+        this.tableCount = 0;
+        this.reservationCount = 0;
         initializeDefaultTables();
-    }
-    
-    /**
-     * Primary constructor: uses passed-in tables.
-     * Demonstrates 'this.' to access instance fields.
-     */
-    public ReservationManager(Map<Integer, AbstractTable> initialTables) {
-        this.tables = initialTables; // Demonstrates this.
-        this.reservations = new ArrayList<>();
     }
     
     // --- Helper Method for super() vs super. ---
     
-    /**
-     * Initializes a default set of tables for the restaurant.
-     */
     private void initializeDefaultTables() {
-        // Adding tables using the base type AbstractTable (Polymorphism)
-        tables.put(1, new TwoSeaterTable(1, TableType.WINDOW));
-        tables.put(2, new FourSeaterTable(2, TableType.BOOTH));
-        tables.put(3, new FourSeaterTable(3, TableType.STANDARD, 6)); // Overloaded constructor
+        // Initial 3 tables
+        tables[tableCount++] = new TwoSeaterTable(1, TableType.WINDOW);
+        tables[tableCount++] = new FourSeaterTable(2, TableType.BOOTH);
+        tables[tableCount++] = new FourSeaterTable(3, TableType.STANDARD, 6);
+        
+        // --- Added 17 New Tables (Total 20) ---
+        
+        // 5 more 2-seater tables
+        tables[tableCount++] = new TwoSeaterTable(4, TableType.STANDARD);
+        tables[tableCount++] = new TwoSeaterTable(5, TableType.WINDOW);
+        tables[tableCount++] = new TwoSeaterTable(6, TableType.WINDOW);
+        tables[tableCount++] = new TwoSeaterTable(7, TableType.STANDARD);
+        tables[tableCount++] = new TwoSeaterTable(8, TableType.OUTDOOR);
+        
+        // 7 more 4-seater tables
+        tables[tableCount++] = new FourSeaterTable(9, TableType.STANDARD);
+        tables[tableCount++] = new FourSeaterTable(10, TableType.STANDARD);
+        tables[tableCount++] = new FourSeaterTable(11, TableType.BOOTH);
+        tables[tableCount++] = new FourSeaterTable(12, TableType.BOOTH);
+        tables[tableCount++] = new FourSeaterTable(13, TableType.OUTDOOR);
+        tables[tableCount++] = new FourSeaterTable(14, TableType.OUTDOOR);
+        tables[tableCount++] = new FourSeaterTable(15, TableType.WINDOW);
+
+        // 5 large tables (custom capacity 6 or 8)
+        tables[tableCount++] = new FourSeaterTable(16, TableType.STANDARD, 6);
+        tables[tableCount++] = new FourSeaterTable(17, TableType.STANDARD, 6);
+        tables[tableCount++] = new FourSeaterTable(18, TableType.OUTDOOR, 8);
+        tables[tableCount++] = new FourSeaterTable(19, TableType.BOOTH, 8);
+        tables[tableCount++] = new FourSeaterTable(20, TableType.STANDARD, 8); // Final Table
     }
     
     // --- Core ReservationService Implementation ---
 
-    /**
-     * Adds a reservation based on a Reservation object.
-     * Fulfills 'checked exception' requirement.
-     */
     @Override
     public Reservation addReservation(int tableNo, Reservation res) throws TableNotAvailableExeception {
-        AbstractTable table = tables.get(tableNo);
+        // ... (Logic remains the same)
+        AbstractTable table = findTable(tableNo);
 
-        if (table == null) {
-            throw new IllegalArgumentException("Table number " + tableNo + " does not exist.");
+        if (table == null || tableNo > MAX_TABLES) {
+            throw new IllegalArgumentException("Table number " + tableNo + " does not exist (Max table is " + MAX_TABLES + ").");
         }
-
-        // Check from flow diagram: "check if entered table no already has a reservation"
+        
         if (table.isReserved()) {
             throw new TableNotAvailableExeception("Table " + tableNo + " is already reserved.");
         }
+        
+        if (reservationCount >= MAX_RESERVATIONS) {
+            throw new IllegalStateException("Maximum reservations reached.");
+        }
 
         table.setReserved(true);
-        reservations.add(res);
+        reservations[reservationCount++] = res;
         return res;
     }
     
     /**
-     * Method Overloading: Adds a reservation calculated from minutes from now.
+     * Method Overloading: Adds a reservation based on specific time and date.
+     * Replaces the old addReservation(..., int minutesFromNow) method.
      * Fulfills the 'method overloading' requirement.
      */
-    public Reservation addReservation(int tableNo, String name, String phone, int minutesFromNow) throws TableNotAvailableExeception {
-        // Uses static interface method for time calculation
-        LocalDateTime time = ReservationService.calculateFutureTime(minutesFromNow);
+    public Reservation addReservation(int tableNo, String name, String phone, LocalDateTime dateTime) throws TableNotAvailableExeception {
+        if (dateTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Reservation time must be in the future.");
+        }
         
-        Reservation res = new Reservation(name, phone, time, tableNo);
-        return addReservation(tableNo, res);
+        Reservation res = new Reservation(name, phone, dateTime, tableNo);
+        return addReservation(tableNo, res); // Calls the @Override method above
     }
     
     /**
-     * Implements the "Mark as Complete" logic from the flow diagram.
-     * Completes the reservation and changes the table status.
+     * Implements the "Mark as Complete" logic using array traversal.
      */
     @Override
     public void removeReservation(int tableNo) {
-        AbstractTable table = tables.get(tableNo);
+        AbstractTable table = findTable(tableNo);
         
-        // Find and remove reservation
-        reservations.removeIf(res -> res.tableNumber() == tableNo);
-
-        // Change table status to "not reserved"
         if (table != null) {
             table.setReserved(false); 
+        }
+
+        // Simple Array removal: Find the reservation and shift elements
+        int indexToRemove = -1;
+        for (int i = 0; i < reservationCount; i++) {
+            if (reservations[i] != null && reservations[i].tableNumber() == tableNo) {
+                indexToRemove = i;
+                break;
+            }
+        }
+        
+        if (indexToRemove != -1) {
+            // Shift elements down (Simple deletion in an array)
+            for (int i = indexToRemove; i < reservationCount - 1; i++) {
+                reservations[i] = reservations[i+1];
+            }
+            reservations[--reservationCount] = null; // Clear the last slot
         }
     }
     
     @Override
     public Reservation getReservationByTableNumber(int tableNo) {
-        // Uses a stream and predicate to find the reservation
-        return reservations.stream()
-                .filter(res -> res.tableNumber() == tableNo)
-                .findFirst()
-                .orElse(null);
+        for (int i = 0; i < reservationCount; i++) {
+            if (reservations[i] != null && reservations[i].tableNumber() == tableNo) {
+                return reservations[i];
+            }
+        }
+        return null;
     }
 
+    /**
+     * Returns a copy of the tables array (Fulfills Defensive Copying conceptually).
+     */
     @Override
-    public List<AbstractTable> getAvailableTables() {
-        // Demonstrates Lambdas (Predicate) for simple filtering
-        return tables.values().stream()
-                .filter(table -> !table.isReserved())
-                .collect(Collectors.toList());
+    public AbstractTable[] getAllTables() {
+        // Using System.arraycopy for array-based defensive copying
+        AbstractTable[] copy = new AbstractTable[tableCount];
+        System.arraycopy(tables, 0, copy, 0, tableCount);
+        return copy; 
     }
     
     /**
-     * Fulfills the 'defensive copying' requirement.
-     * Returns a copy of the internal reservation list.
+     * Returns a copy of the reservations array (Fulfills Defensive Copying conceptually).
      */
     @Override
-    public List<Reservation> getAllReservations() {
-        return new ArrayList<>(this.reservations);
+    public Reservation[] getAllReservations() {
+        Reservation[] copy = new Reservation[reservationCount];
+        System.arraycopy(reservations, 0, copy, 0, reservationCount);
+        return copy;
     }
     
+    // Helper method to find a table by number using array traversal
+    private AbstractTable findTable(int tableNo) {
+        for (int i = 0; i < tableCount; i++) {
+            if (tables[i].getTableNumber() == tableNo) {
+                return tables[i];
+            }
+        }
+        return null;
+    }
+
     // --- Advanced Methods ---
 
     /**
-     * Demonstrates Lambdas and Predicate for advanced filtering.
-     * Fulfills 'lambdas (Predicate)' requirement.
+     * Demonstrates Lambdas and Predicate using simple array traversal.
      */
-    public List<AbstractTable> getFilteredTables(Predicate<AbstractTable> filter) {
-        // Uses the provided Predicate lambda to filter the table list
-        return tables.values().stream()
-                .filter(filter)
-                .collect(Collectors.toList());
+    public AbstractTable[] getFilteredTables(Predicate<AbstractTable> filter) {
+        // First pass to count matches
+        int matchCount = 0;
+        for (int i = 0; i < tableCount; i++) {
+            if (filter.test(tables[i])) { // The lambda logic is applied here
+                matchCount++;
+            }
+        }
+        
+        // Second pass to build the resulting array
+        AbstractTable[] filtered = new AbstractTable[matchCount];
+        int j = 0;
+        for (int i = 0; i < tableCount; i++) {
+            if (filter.test(tables[i])) {
+                filtered[j++] = tables[i];
+            }
+        }
+        return filtered;
     }
     
     /**
-     * Demonstrates Varargs for flexibility in displaying details.
-     * Fulfills the 'varargs' requirement.
+     * Demonstrates Varargs (remains the same).
      */
     public String getReservationDetails(Reservation res, String... fields) {
         StringBuilder details = new StringBuilder();
         details.append("Reservation Details:\n");
         
-        for (var field : fields) { // LVTI 'var' used here
-            switch (field.toLowerCase()) { // Fulfills 'switch expressions' (modern compiler supports this)
+        for (var field : fields) {
+            switch (field.toLowerCase()) {
                 case "name" -> details.append("  Name: ").append(res.customerName()).append("\n");
                 case "phone" -> details.append("  Phone: ").append(res.customerPhone()).append("\n");
                 case "time" -> details.append("  Time: ").append(res.reservationTime()).append("\n");
