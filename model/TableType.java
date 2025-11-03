@@ -1,5 +1,8 @@
 package model;
 
-public class TableType {
-    
+public enum TableType {
+    BOOTH,
+    WINDOW,
+    OUTDOOR,
+    STANDARD;
 }

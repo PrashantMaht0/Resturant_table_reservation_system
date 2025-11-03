@@ -1,5 +1,5 @@
 package model;
 
-public class Table {
-    
+public sealed interface Table 
+    permits TwoSeaterTable, FourSeaterTable {
 }
