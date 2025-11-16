@@ -1,5 +1,7 @@
 package model;
-
+/*
+ * This class represents a two-seater table in the restaurant.
+ */
 public final class TwoSeaterTable extends AbstractTable implements Table {
     
     private static final int CAPACITY = 2;

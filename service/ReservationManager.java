@@ -1,5 +1,7 @@
 package service;
-
+/*
+ * This class defines the operations for managing reservations and tables in the restaurant.
+ */
 import model.AbstractTable;
 import model.Reservation;
 import exception.TableNotAvailableExeception;
@@ -21,7 +23,7 @@ public class ReservationManager implements ReservationService {
     private int tableCount;
     private int reservationCount;
 
-    
+    // Constructor initializes tables and reservations
     public ReservationManager() {
         this.tables = new AbstractTable[MAX_TABLES];
         this.reservations = new Reservation[MAX_RESERVATIONS];
@@ -30,7 +32,7 @@ public class ReservationManager implements ReservationService {
         initializeDefaultTables();
     }
     
-    
+    // Initialize some default tables for the restaurant
     private void initializeDefaultTables() {
         tables[tableCount++] = new TwoSeaterTable(1, TableType.WINDOW);
         tables[tableCount++] = new FourSeaterTable(2, TableType.BOOTH);
@@ -54,7 +56,7 @@ public class ReservationManager implements ReservationService {
         tables[tableCount++] = new FourSeaterTable(20, TableType.STANDARD, 8); // Final Table
     }
     
-
+    // Implementation of ReservationService methods
     @Override
     public Reservation addReservation(int tableNo, Reservation res) throws TableNotAvailableExeception {
         AbstractTable table = findTable(tableNo);
@@ -75,7 +77,7 @@ public class ReservationManager implements ReservationService {
         reservations[reservationCount++] = res;
         return res;
     }
-    
+    // Overloaded method to create and add a reservation
     public Reservation addReservation(int tableNo, String name, String phone, LocalDateTime dateTime) throws TableNotAvailableExeception {
         if (dateTime.isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Reservation time must be in the future.");
@@ -85,6 +87,7 @@ public class ReservationManager implements ReservationService {
         return addReservation(tableNo, res); // Calls the @Override method above
     }
     
+    //mark reservation as complete and free up the table
     @Override
     public void removeReservation(int tableNo) {
         AbstractTable table = findTable(tableNo);
@@ -108,7 +111,7 @@ public class ReservationManager implements ReservationService {
             reservations[--reservationCount] = null;
         }
     }
-    
+    // method to get reservation by table number
     @Override
     public Reservation getReservationByTableNumber(int tableNo) {
         for (int i = 0; i < reservationCount; i++) {
@@ -118,21 +121,21 @@ public class ReservationManager implements ReservationService {
         }
         return null;
     }
-
+    // method to get all tables
     @Override
     public AbstractTable[] getAllTables() {
         AbstractTable[] copy = new AbstractTable[tableCount];
         System.arraycopy(tables, 0, copy, 0, tableCount);
         return copy; 
     }
-    
+    // method to get all reservations 
     @Override
     public Reservation[] getAllReservations() {
         Reservation[] copy = new Reservation[reservationCount];
         System.arraycopy(reservations, 0, copy, 0, reservationCount);
         return copy;
     }
-    
+    // Helper method to find a table by its number
     private AbstractTable findTable(int tableNo) {
         for (int i = 0; i < tableCount; i++) {
             if (tables[i].getTableNumber() == tableNo) {
@@ -141,7 +144,7 @@ public class ReservationManager implements ReservationService {
         }
         return null;
     }
-
+    // Method to get filtered tables based on a predicate
     public AbstractTable[] getFilteredTables(Predicate<AbstractTable> filter) {
         int matchCount = 0;
         for (int i = 0; i < tableCount; i++) {
@@ -159,7 +162,7 @@ public class ReservationManager implements ReservationService {
         }
         return filtered;
     }
-    
+    // Method to get reservation details as a formatted string to be displayed on table 
     public String getReservationDetails(Reservation res, String... fields) {
         StringBuilder details = new StringBuilder();
         details.append("Reservation Details:\n");

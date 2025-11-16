@@ -1,5 +1,7 @@
 package model;
-
+/*
+ * This abstract class provides a base implementation for different types of tables in the restaurant.
+ */
 public abstract class AbstractTable {
 
     protected final int tableNumber;
@@ -32,6 +34,7 @@ public abstract class AbstractTable {
         isReserved = reserved;
     }
     
+    //get table information as string for display in the table list
     public String getTableInfo() {
         var status = isReserved ? "RESERVED" : "NOT RESERVED";
         return String.format("Table %d (%s) - Capacity: %d, Status: %s",

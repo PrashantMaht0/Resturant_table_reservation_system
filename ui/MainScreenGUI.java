@@ -1,5 +1,7 @@
 package ui;
-
+/*
+ * This class provides the main GUI screen for the restaurant table reservation system.
+ */
 import service.ReservationManager;
 
 import javax.swing.*;
@@ -8,7 +10,7 @@ import java.awt.*;
 public class MainScreenGUI extends JFrame {
 
     private final ReservationManager manager;
-
+    // Constructor to initialize the main screen GUI
     public MainScreenGUI(ReservationManager manager) {
         
         super("The Spice India - Table Reservation System");
@@ -19,7 +21,7 @@ public class MainScreenGUI extends JFrame {
         setupLayout(); 
         setLocationRelativeTo(null);
     }
-
+    // Method to set up the layout of the main screen
     private void setupLayout() {
         setLayout(new BorderLayout(10, 10));
 
@@ -35,7 +37,7 @@ public class MainScreenGUI extends JFrame {
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT); 
         
         topContainerPanel.add(titleLabel);
-        topContainerPanel.add(Box.createVerticalStrut(20)); // Add space between title and buttons
+        topContainerPanel.add(Box.createVerticalStrut(20)); 
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(4, 1, 10, 10)); 
@@ -66,8 +68,8 @@ public class MainScreenGUI extends JFrame {
         add(new JLabel("  Select an action from the menu."), BorderLayout.SOUTH);
     }
     
-   
-    private void showEditReservationDialog() {
+   // Show dialog to edit an existing reservation
+    private void showEditReservationDialog() {  
         String tableNoStr = JOptionPane.showInputDialog(this, "Enter Table Number to Edit:", "Edit Reservation", JOptionPane.QUESTION_MESSAGE);
         
         if (tableNoStr != null) {
@@ -84,7 +86,7 @@ public class MainScreenGUI extends JFrame {
             }
         }
     }
-
+    // Show dialog to remove an existing reservation
     private void showRemoveReservationDialog() {
         String tableNoStr = JOptionPane.showInputDialog(this, "Enter Table Number to Remove Reservation:", "Remove Reservation", JOptionPane.QUESTION_MESSAGE);
         

@@ -1,5 +1,7 @@
 package ui;
-
+/*
+ * This class provides the GUI to view the status of all tables in the restaurant.
+ */
 import model.AbstractTable;
 import model.Reservation;
 import service.ReservationManager;
@@ -17,9 +19,9 @@ public class ViewTablesGUI extends JFrame {
     private final ReservationManager manager;
     private JTable reservationTable;
     private DefaultTableModel tableModel;
-
+    // Column names for the table
     private static final String[] COLUMN_NAMES = {"Table No", "Type", "Capacity", "Status", "Action"};
-
+    // Constructor to initialize the GUI
     public ViewTablesGUI(ReservationManager manager) {
         super("Table Status - The Spice India");
         this.manager = manager;
@@ -31,7 +33,7 @@ public class ViewTablesGUI extends JFrame {
         updateReservationTable();
         setLocationRelativeTo(null);
     }
-    
+    // Method to set up the reservation table
     private void setupTable() {
         tableModel = new DefaultTableModel(COLUMN_NAMES, 0) {
             @Override
@@ -44,7 +46,7 @@ public class ViewTablesGUI extends JFrame {
         reservationTable.getColumn("Action").setCellRenderer(new ButtonRenderer());
         reservationTable.getColumn("Action").setCellEditor(new ButtonEditor(new JTextField(), this));
     }
-
+    // Method to set up the layout of the GUI
     private void setupLayout() {
         setLayout(new BorderLayout());
         
@@ -58,7 +60,7 @@ public class ViewTablesGUI extends JFrame {
         add(new JScrollPane(reservationTable), BorderLayout.CENTER);
     }
     
-
+    // Method to update the reservation table with current data
     public void updateReservationTable() {
         tableModel.setRowCount(0);
 
@@ -101,8 +103,8 @@ public class ViewTablesGUI extends JFrame {
         "Reservation Details for Table %d:\n\n" +
         "Customer: %s\n" +
         "Phone: %s\n\n" +
-        "Date: %s\n" + // Separate line for Date
-        "Time: %s",   // Separate line for Time
+        "Date: %s\n" + 
+        "Time: %s",   
         tableNo,
         reservation.customerName(),
         reservation.customerPhone(),
@@ -110,9 +112,7 @@ public class ViewTablesGUI extends JFrame {
         dateTime.format(timeFormat)
     );
 
-    // Old method using manager.getReservationDetails is now replaced by the custom formatted string above.
-    // String details = manager.getReservationDetails(reservation, "name", "phone", "time"); 
-    
+    // Show options to mark as complete or just close
     Object[] options = {"Mark as Complete", "Close"};
     int result = JOptionPane.showOptionDialog(this,
         details,
@@ -127,7 +127,7 @@ public class ViewTablesGUI extends JFrame {
         updateReservationTable(); 
     }
 }
-    
+    // Custom renderer for the button in the table
     private class ButtonRenderer extends JButton implements javax.swing.table.TableCellRenderer {
         public ButtonRenderer() { setOpaque(true); }
         @Override

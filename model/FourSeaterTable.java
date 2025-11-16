@@ -1,5 +1,7 @@
 package model;
-
+/*
+ * This class represents a four-seater table in the restaurant.
+ */
 public final class FourSeaterTable extends AbstractTable implements Table {
 
     // Capacity can be flexible for larger tables, but defaults to 4

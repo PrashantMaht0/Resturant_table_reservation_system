@@ -1,5 +1,7 @@
 package ui;
-
+/*
+ * This class provides a dialog to add a new reservation for a specific table.
+ */
 import exception.TableNotAvailableExeception;
 import service.ReservationManager;
 
@@ -12,10 +14,11 @@ import java.time.format.DateTimeParseException;
 import java.time.format.DateTimeFormatter;
 
 public class AddReservationDialog extends JDialog {
-    
+    // References to the reservation manager and parent GUI
     private final ReservationManager manager;
     private final MainScreenGUI parentGUI;
 
+    // UI components
     private JTextField tableNoField, nameField, phoneField;
     private JTextField dateField, timeField; 
     
@@ -24,6 +27,7 @@ public class AddReservationDialog extends JDialog {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
+    // Constructor to initialize the dialog
     public AddReservationDialog(MainScreenGUI parent, ReservationManager manager) {
         super(parent, "Add Reservation", true);
         this.manager = manager;
@@ -34,7 +38,7 @@ public class AddReservationDialog extends JDialog {
         setResizable(false);
         setLocationRelativeTo(parent);
     }
-
+    // Method to set up the UI components
     private void setupUI() {
         JPanel mainPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -66,7 +70,7 @@ public class AddReservationDialog extends JDialog {
         
         add(mainPanel, BorderLayout.CENTER);
     }
-    
+    // Method to attempt adding a reservation based on user input
     private void attemptAddReservation() {
         try {
             int tableNo = Integer.parseInt(tableNoField.getText().trim());
@@ -76,25 +80,25 @@ public class AddReservationDialog extends JDialog {
             LocalDate date = LocalDate.parse(dateField.getText().trim(), DATE_FORMATTER);
             LocalTime time = LocalTime.parse(timeField.getText().trim(), TIME_FORMATTER);
             LocalDateTime dateTime = LocalDateTime.of(date, time);
-
+            // Validate inputs
             manager.addReservation(tableNo, name, phone, dateTime);
-
+            // Success message
             JOptionPane.showMessageDialog(this, 
                 "Booking successful for Table " + tableNo + " at " + dateTime.format(DATE_FORMATTER) + " " + dateTime.format(TIME_FORMATTER) + ".", 
                 "Success", JOptionPane.INFORMATION_MESSAGE);
             
             dispose(); 
 
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException ex) { // Handle invalid table number input
             JOptionPane.showMessageDialog(this, "Please enter a valid table number.", 
                 "Input Error", JOptionPane.ERROR_MESSAGE);
-        } catch (DateTimeParseException ex) {
+        } catch (DateTimeParseException ex) { // Handle invalid date/time format
             JOptionPane.showMessageDialog(this, "Invalid date/time format. Use YYYY-MM-DD and HH:MM.", 
                 "Date/Time Error", JOptionPane.ERROR_MESSAGE);
-        } catch (TableNotAvailableExeception ex) {
+        } catch (TableNotAvailableExeception ex) { // Handle table not available
             JOptionPane.showMessageDialog(this, ex.getMessage(), 
                 "Booking Failed", JOptionPane.ERROR_MESSAGE);
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) { // Handle other illegal arguments
             
             JOptionPane.showMessageDialog(this, ex.getMessage(), 
                 "Validation Error", JOptionPane.ERROR_MESSAGE);

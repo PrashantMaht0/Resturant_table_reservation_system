@@ -1,5 +1,7 @@
 package ui;
-
+/*
+ * This class provides a dialog to edit an existing reservation for a specific table.
+ */
 import model.Reservation;
 import service.ReservationManager;
 
@@ -23,7 +25,7 @@ public class EditReservationDialog extends JDialog {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
-
+    // Constructor to initialize the dialog
     public EditReservationDialog(MainScreenGUI parent, ReservationManager manager, int tableNo) {
         super(parent, "Edit Reservation for Table " + tableNo, true);
         this.manager = manager;
@@ -71,7 +73,7 @@ public class EditReservationDialog extends JDialog {
         
         add(mainPanel, BorderLayout.CENTER);
     }
-
+    // Pre-populate fields with existing reservation data
     private void prePopulateFields() {
         LocalDateTime originalTime = originalReservation.reservationTime();
 
@@ -81,7 +83,7 @@ public class EditReservationDialog extends JDialog {
         dateField.setText(originalTime.format(DATE_FORMATTER));
         timeField.setText(originalTime.format(TIME_FORMATTER));
     }
-    
+    // Attempt to save the updated reservation
     private void attemptSaveReservation() {
         try {
             String name = nameField.getText().trim();
@@ -101,13 +103,13 @@ public class EditReservationDialog extends JDialog {
             
             dispose(); 
 
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException ex) { // Handle invalid table number input
             JOptionPane.showMessageDialog(this, "Please ensure the table number is valid.", 
                 "Input Error", JOptionPane.ERROR_MESSAGE);
-        } catch (DateTimeParseException ex) {
+        } catch (DateTimeParseException ex) { // Handle invalid date/time format
             JOptionPane.showMessageDialog(this, "Invalid date/time format. Use YYYY-MM-DD and HH:MM.", 
                 "Date/Time Error", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception ex) {
+        } catch (Exception ex) { // Handle other exceptions
             JOptionPane.showMessageDialog(this, "Failed to update reservation: " + ex.getMessage(), 
                 "Error", JOptionPane.ERROR_MESSAGE);
         }
